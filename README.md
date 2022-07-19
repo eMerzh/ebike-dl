@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/ebike-dl.svg)](https://badge.fury.io/py/ebike-dl)
+
 # ebike-downloader
 
 Bosch eBike Connect Activity Downloader (https://www.ebike-connect.com/dashboard)
