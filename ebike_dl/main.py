@@ -308,14 +308,79 @@ def fetch(
         Exit(1)
 
 
+def load_trip(file: Path) -> ECRide:
+    ride_file = open(file)
+    trip_raw = json.load(ride_file)
+    return ECRide.from_dict(trip_raw)
+
+
+def write_export(file: Path, extension: str, content: str):
+    filename = file.stem
+    new_file = os.path.join(file.parent, f"{filename}.{extension}")
+    print(f"Write to {new_file}")
+    with open(new_file, "w") as write_file:
+        write_file.write(content)
+
+
+@app.command()
+def to_gpx(
+    file: Path = Option(..., help="File downloaded from Ebike Portal", file_okay=True, exists=True),
+):
+    """Export a single json to a GPX file"""
+    trip = load_trip(file)
+
+    count_item = len(trip.coordinates[0])
+    interval = trip.end_time - trip.start_time
+    total_points = interval / count_item
+
+    segments = []
+    for idx, coord in enumerate(trip.coordinates[0]):
+        alt = trip.portal_altitudes[0][idx]
+        point_when = trip.start_time + (total_points * idx)
+
+        segments.append(
+            f"""<trkpt lat="{coord[0] or ''}" lon="{coord[1] or ''}">
+                <ele>{alt}</ele>
+                <time>{point_when.isoformat()}</time>
+                <extensions>
+                <gpxtpx:TrackPointExtension>
+                    <gpxtpx:speed>{trip.speed[0][idx] or ''}</gpxtpx:speed>
+                    <gpxtpx:hr>{trip.heart_rate[0][idx] or ''}</gpxtpx:hr>
+                    <gpxtpx:cad>{trip.cadence[0][idx] or ''}</gpxtpx:cad>
+                    <pwr:PowerInWatts>{trip.power_output[0][idx] or ''}</pwr:PowerInWatts>
+                </gpxtpx:TrackPointExtension>
+                </extensions>
+            </trkpt>
+        """
+        )
+
+    XML_DATA = f"""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx xmlns="http://www.topografix.com/GPX/1/1"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            creator="ebik-dl" version="1.1"
+            xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v2"
+            xmlns:pwr="http://www.garmin.com/xmlschemas/PowerExtension/v1"
+            xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd  http://www.garmin.com/xmlschemas/TrackPointExtension/v2 http://www.garmin.com/xmlschemas/TrackPointExtensionv2.xsd http://www.garmin.com/xmlschemas/PowerExtension/v1 http://www.garmin.com/xmlschemas/PowerExtensionv1.xsd">
+        <metadata>
+            <time>{datetime.now().isoformat()}</time>
+        </metadata>
+        <trk>
+            <name>{trip.title}</name>
+            <trkseg>
+              {"".join(segments)}
+            </trkseg>
+        </trk>
+    </gpx>
+    """
+    write_export(file, "gpx", XML_DATA)
+
+
 @app.command()
 def to_kml(
     file: Path = Option(..., help="File downloaded from Ebike Portal", file_okay=True, exists=True),
 ):
-    ride_file = open(file)
-    trip_raw = json.load(ride_file)
-    trip = ECRide.from_dict(trip_raw)
-
+    """Export a single json to a KML file"""
+    trip = load_trip(file)
     track_type = "cyclism"
     type_icon = "BIKE"
 
@@ -412,11 +477,7 @@ def to_kml(
         </Document>
     </kml>
     """
-    filename = file.stem
-    new_file = os.path.join(file.parent, f"{filename}.kml")
-    print(f"Write to {new_file}")
-    with open(new_file, "w") as write_file:
-        write_file.write(XML_DATA)
+    write_export(file, "kml", XML_DATA)
 
 
 if __name__ == "__main__":

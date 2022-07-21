@@ -15,8 +15,6 @@ You can easily run it using
 pipx install ebike-dl
 ```
 
-might be published on pypi later.
-
 ## Run
 
 ```
@@ -27,6 +25,23 @@ where login passwords are from the ebike-connect.com portal.
 
 You'll then get the downloaded files (1per ride) in the folder ./out
 (you can also use env variable to provide login, password, ... see --help)
+
+## To GPX
+
+You have the ability to download GPX on Bosch's portal, but those do not contain any additional info like power, cadence or heart_rate.
+by using `to-gpx` you can get a gpx with all those things (in gpx extension it might not be supported by the average gpx reader...)
+
+```
+ebike-dl to-gpx --file out/myid.json
+# output out/myid.pgx
+```
+
+Used extensions:
+
+    gpxtpx http://www.garmin.com/xmlschemas/TrackPointExtension/v2
+    pwr http://www.garmin.com/xmlschemas/PowerExtension/v1
+
+## To KML 2.2
 
 there is also the ability to transform those to KML (ofc some info will be lost)
 
