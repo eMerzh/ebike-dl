@@ -12,3 +12,4 @@ jobs:
           release-type: python
           package-name: ebike-dl
           monorepo-tags: false
+          token: ${{ secrets.GH_PAT }}
