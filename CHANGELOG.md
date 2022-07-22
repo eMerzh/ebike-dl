@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/eMerzh/ebike-dl/compare/v0.2.0...v0.3.0) (2022-07-22)
+
+
+### Features
+
+* add directory input ([0bcb377](https://github.com/eMerzh/ebike-dl/commit/0bcb37743e942cd878d912e542e5a6f54598c010))
+
 ## [0.2.0](https://github.com/eMerzh/ebike-dl/compare/v0.1.0...v0.2.0) (2022-07-21)
 
 
