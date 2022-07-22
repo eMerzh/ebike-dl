@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/eMerzh/ebike-dl/compare/v0.3.1...v0.3.2) (2022-07-22)
+
+
+### Bug Fixes
+
+* correct release please token ([86b0547](https://github.com/eMerzh/ebike-dl/commit/86b05474f17e4ed6b2bb072d743c770fe0fe5126))
+
 ## [0.3.1](https://github.com/eMerzh/ebike-dl/compare/v0.3.0...v0.3.1) (2022-07-22)
 
 
