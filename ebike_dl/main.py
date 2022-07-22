@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Iterator, List, Tuple
 
 import requests
 from typer import Exit, Option, Typer
@@ -308,10 +308,18 @@ def fetch(
         Exit(1)
 
 
-def load_trip(file: Path) -> ECRide:
-    ride_file = open(file)
-    trip_raw = json.load(ride_file)
-    return ECRide.from_dict(trip_raw)
+def load_trips(input: Path) -> Iterator[Tuple[ECRide, Path]]:
+    files = []
+    if input.is_dir():
+        for file in os.listdir(input):
+            if file.endswith(".json"):
+                files.append(Path(os.path.join(input, file)))
+    else:
+        files = [input]
+    for file in files:
+        ride_file = open(file)
+        trip_raw = json.load(ride_file)
+        yield ECRide.from_dict(trip_raw), file
 
 
 def write_export(file: Path, extension: str, content: str):
@@ -322,13 +330,7 @@ def write_export(file: Path, extension: str, content: str):
         write_file.write(content)
 
 
-@app.command()
-def to_gpx(
-    file: Path = Option(..., help="File downloaded from Ebike Portal", file_okay=True, exists=True),
-):
-    """Export a single json to a GPX file"""
-    trip = load_trip(file)
-
+def trip_to_gpx(trip: ECRide) -> str:
     count_item = len(trip.coordinates[0])
     interval = trip.end_time - trip.start_time
     total_points = interval / count_item
@@ -354,7 +356,7 @@ def to_gpx(
         """
         )
 
-    XML_DATA = f"""<?xml version="1.0" encoding="UTF-8"?>
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
         <gpx xmlns="http://www.topografix.com/GPX/1/1"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             creator="ebik-dl" version="1.1"
@@ -372,15 +374,9 @@ def to_gpx(
         </trk>
     </gpx>
     """
-    write_export(file, "gpx", XML_DATA)
 
 
-@app.command()
-def to_kml(
-    file: Path = Option(..., help="File downloaded from Ebike Portal", file_okay=True, exists=True),
-):
-    """Export a single json to a KML file"""
-    trip = load_trip(file)
+def trip_to_kml(trip: ECRide) -> str:
     track_type = "cyclism"
     type_icon = "BIKE"
 
@@ -401,7 +397,7 @@ def to_kml(
         """
         )
 
-    XML_DATA = f"""<?xml version="1.0" encoding="UTF-8"?>
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
     <kml xmlns="http://www.opengis.net/kml/2.2"
         xmlns:gx="http://www.google.com/kml/ext/2.2"
         xmlns:atom="http://www.w3.org/2005/Atom"
@@ -477,7 +473,36 @@ def to_kml(
         </Document>
     </kml>
     """
-    write_export(file, "kml", XML_DATA)
+
+
+@app.command()
+def to_gpx(
+    file: Path = Option(
+        ...,
+        help="File downloaded from Ebike Portal (if a directory is given al *.json file in that directory) ",
+        file_okay=True,
+        dir_okay=True,
+        exists=True,
+    ),
+):
+    """Export json file(s) to a GPX"""
+    for trip, in_file in load_trips(file):
+        write_export(in_file, "gpx", trip_to_gpx(trip))
+
+
+@app.command()
+def to_kml(
+    file: Path = Option(
+        ...,
+        help="File downloaded from Ebike Portal (if a directory is given al *.json file in that directory)",
+        file_okay=True,
+        dir_okay=True,
+        exists=True,
+    ),
+):
+    """Export json file(s) to KML"""
+    for trip, in_file in load_trips(file):
+        write_export(in_file, "kml", trip_to_kml(trip))
 
 
 if __name__ == "__main__":
