@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ebike-dl"
-version = "0.3.0"
+version = "0.3.1"
 description = "Bosch eBike Connect Activity Downloader"
 authors = ["Brice Maron <bmaron@gmail.com>"]
 license = "MIT"

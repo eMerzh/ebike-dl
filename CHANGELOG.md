@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/eMerzh/ebike-dl/compare/v0.3.0...v0.3.1) (2022-07-22)
+
+
+### Bug Fixes
+
+* correct python setup ([b63cf57](https://github.com/eMerzh/ebike-dl/commit/b63cf57f1e00f7120668464bcb8419ba9b130dad))
+
 ## [0.3.0](https://github.com/eMerzh/ebike-dl/compare/v0.2.0...v0.3.0) (2022-07-22)
 
 
