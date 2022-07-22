@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/eMerzh/ebike-dl/compare/v0.3.2...v0.3.3) (2022-07-22)
+
+
+### Bug Fixes
+
+* missing poetry ([5c1b75d](https://github.com/eMerzh/ebike-dl/commit/5c1b75da580520f25dab9436a2863e8c7239e1e1))
+
 ## [0.3.2](https://github.com/eMerzh/ebike-dl/compare/v0.3.1...v0.3.2) (2022-07-22)
 
 
